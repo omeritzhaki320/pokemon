@@ -1,0 +1,17 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: server-scaledobject
+  namespace: default
+  labels:
+    app: pokemon-app
+spec:
+  scaleTargetRef:
+    name: server-deployment
+  minReplicaCount: 1
+  maxReplicaCount: 5
+  triggers:
+  - type: cpu
+    metadata:
+      type: Utilization
+      value: "70"
