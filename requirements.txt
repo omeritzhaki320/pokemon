@@ -1,4 +1,3 @@
 requests==2.32.3
-uvicorn==0.30.1
-fastapi==0.111.0
-prometheus-fastapi-instrumentator==7.0.0
+Flask==3.0.3
+prometheus-flask-exporter==0.23.0

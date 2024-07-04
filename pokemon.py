@@ -3,15 +3,13 @@ import logging
 from typing import List, Tuple
 
 import requests
-import uvicorn
-from fastapi import FastAPI, HTTPException
-from prometheus_fastapi_instrumentator import Instrumentator
+from flask import Flask, jsonify, request
+from prometheus_flask_exporter import PrometheusMetrics
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-app = FastAPI()
-
-Instrumentator().instrument(app).expose(app)
+app = Flask(__name__)
+metrics = PrometheusMetrics(app)
 
 
 def fetch_pokemon_details(limit: int) -> List[Tuple[str, str]]:
@@ -24,7 +22,6 @@ def fetch_pokemon_details(limit: int) -> List[Tuple[str, str]]:
         return [(pokemon['name'], pokemon['url']) for pokemon in pokemon_list]
     except (KeyError, TypeError, ValueError) as json_err:
         logging.error(f'JSON parsing error: {json_err}')
-        raise HTTPException(status_code=500, detail="Error fetching Pokemon details")
 
 
 def save_queries(pokemon_details: List[Tuple[str, str]], filename: str) -> None:
@@ -36,21 +33,21 @@ def save_queries(pokemon_details: List[Tuple[str, str]], filename: str) -> None:
         logging.info(f'Successfully saved queries to {filename}')
     except IOError as io_err:
         logging.error(f'File writing error: {io_err}')
-        raise HTTPException(status_code=500, detail="Error saving Pokemon details")
 
 
-@app.get("/pokemon")
-def fetch_and_save_pokemon(limit: int = 10):
+@app.route('/pokemon', methods=['GET'])
+def fetch_and_save_pokemon():
+    limit = request.args.get('limit', default=10, type=int)
     pokemon_details = fetch_pokemon_details(limit)
     if pokemon_details:
         for name, url in pokemon_details:
             logging.info(f"Name: {name}, URL: {url}")
         save_queries(pokemon_details, 'pokemon_queries.csv')
-        return {"message": "Pokemon details fetched and saved successfully"}
+        return jsonify({"message": "Pokemon details fetched and saved successfully"})
     else:
         logging.error('No Pokemon details retrieved')
-        raise HTTPException(status_code=404, detail="No Pokemon details retrieved")
+        return jsonify({"error": "No Pokemon details retrieved"}), 404
 
 
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    app.run(host="0.0.0.0", port=8000)

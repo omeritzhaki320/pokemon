@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: pokemon-container
-        image: omeritzhaki/pokemon-fetcher:0.0.1
+        image: omeritzhaki/pokemon-fetcher:latest
         ports:
         - containerPort: 8000
         resources:
