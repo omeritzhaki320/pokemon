@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "pokemon.py"]
+CMD ["uvicorn", "pokemon:app", "--host", "0.0.0.0", "--port", "8000"]
