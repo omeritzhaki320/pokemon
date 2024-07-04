@@ -5,10 +5,13 @@ from typing import List, Tuple
 import requests
 import uvicorn
 from fastapi import FastAPI, HTTPException
+from prometheus_fastapi_instrumentator import Instrumentator
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = FastAPI()
+
+Instrumentator().instrument(app).expose(app)
 
 
 def fetch_pokemon_details(limit: int) -> List[Tuple[str, str]]:

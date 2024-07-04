@@ -14,10 +14,14 @@ spec:
     metadata:
       labels:
         app: pokemon-app
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/path: '/metrics'
+        prometheus.io/port: '8000'
     spec:
       containers:
       - name: pokemon-container
-        image: omeritzhaki/pokemon-fetcher:latest
+        image: omeritzhaki/pokemon-fetcher:0.0.1
         ports:
         - containerPort: 8000
         resources:
